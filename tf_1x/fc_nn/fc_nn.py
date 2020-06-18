@@ -6,7 +6,7 @@ from tf_1x.utilities.file_util import FileUtil
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_integer("is_train", 0, "Flag: train or pred")  # 1:training, other: prediction
+tf.app.flags.DEFINE_integer("is_train", 1, "Flag: train or pred")  # 1:training, other: prediction
 
 
 def full_connected_nn():
