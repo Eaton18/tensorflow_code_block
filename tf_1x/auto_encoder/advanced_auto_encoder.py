@@ -4,7 +4,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from tf_1x.utilities.file_util import FileUtil
 
-# 导入 MINST 数据集
 from tensorflow.examples.tutorials.mnist import input_data
 
 # 导入MNINST数据集
