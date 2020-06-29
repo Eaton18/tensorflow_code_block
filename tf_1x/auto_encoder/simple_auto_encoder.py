@@ -1,13 +1,13 @@
 import os
 import numpy as np
-import tensorflow_core as tf
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from tf_1x.utilities.file_util import FileUtil
 
-from tensorflow_core.examples.tutorials.mnist import input_data
+from tensorflow.examples.tutorials.mnist import input_data
 
 """
-实现一个自编码器
+实现一个简单自编码器
 Input: mnist datasets
     X: [None, 784] (784=28*28*1)
     Y: [None, 10]
@@ -17,7 +17,8 @@ Input: mnist datasets
 3. Decoder
 4. Decoder
 
-Input:MNIST(784) -> Encoder_1 -> Encoder_2 -> Decoder_1  -> Decoder_1 -> Output: data(784)
+Input:MNIST(784) -> Encoder_1 -> Encoder_2 -> Decoder_1  -> Decoder_2 -> Output: data(784)
+(784) -> (256) -> (128) -> (128) -> (256) -> (784)
 """
 
 # 导入MNINST数据集
@@ -26,6 +27,7 @@ mnist = input_data.read_data_sets(mnist_data_path, one_hot=True)
 
 learning_rate = 0.01
 
+# hidden layer settings
 n_hidden_1 = 256  # 第一层256个节点
 n_hidden_2 = 128  # 第二层128个节点
 n_input = 28 * 28 * 1  # MNIST 数据集中图片的维度
@@ -78,7 +80,7 @@ optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
 # 训练参数
 training_epochs = 20  # 一共迭代20次
 batch_size = 256  # 每次取256个样本
-display_step = 5  # 迭代5次输出一次信息
+display_step = 5  # 迭代100次输出一次信息
 
 # 定义一个初始化变量的op
 init_op = tf.global_variables_initializer()
@@ -95,13 +97,24 @@ with tf.Session() as sess:
             batch_xs, batch_ys = mnist.train.next_batch(batch_size=batch_size)  # 取数据
             _, c = sess.run([optimizer, cost], feed_dict={x: batch_xs})
 
-            # 训练模型
-            if epoch % display_step == 0:
-                print("Epoch:", '%04d' % (epoch + 1), "cost=", "{:.9f}".format(c))
+        # 显示训练中的详细信息
+        if epoch % display_step == 0:
+            print(f"Epoch:{epoch + 1}, Cost:{round(float(c), 6)}")
 
-    print("完成！")
+    print("Completed!")
 
     correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
     # 计算错误率
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
     print("Accuracy:", 1 - accuracy.eval({x: mnist.test.images, y: mnist.test.images}))
+
+    # 可视化结果
+    show_num = 10
+    reconstruction = sess.run(pred, feed_dict={x: mnist.test.images[:show_num]})
+    # 将样本对应的自编码重建图像一并输出比较
+    f, a = plt.subplots(2, 10, figsize=(10, 2))
+    for i in range(show_num):
+        a[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
+        a[1][i].imshow(np.reshape(reconstruction[i], (28, 28)))
+
+    plt.show()
