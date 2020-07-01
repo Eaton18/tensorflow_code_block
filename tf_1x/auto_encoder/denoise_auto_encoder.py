@@ -84,11 +84,12 @@ with tf.Session() as sess:
             batch_xs, batch_ys = mnist.train.next_batch(batch_size)
             # 加入噪声，将输入图像的每一个像素都加上0.3倍的高斯噪声
             batch_xs_noisy = batch_xs + 0.3 * np.random.randn(batch_size, 784)
+            # 降噪自编码器，关键：用注入噪声的数据训练，训练的目标还是没有注入噪声之前的数据
             feeds = {x: batch_xs_noisy, y: batch_xs, dropout_keep_prob: 1.}
             sess.run(optm, feed_dict=feeds)
             total_cost += sess.run(cost, feed_dict=feeds)
 
-        # 显示训练日志
+        # display training log
         if epoch % disp_step == 0:
             print(f"Epoch {epoch}/{epochs}  Average cost: {round(total_cost / num_batch, 6)}")
 
